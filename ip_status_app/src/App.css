@@ -1,0 +1,46 @@
+/* App.css */
+
+.App {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.App div {
+  border: 1px solid #e02f2f;
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.App p {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.App p:first-child {
+  flex-grow: 1;
+}
+
+.App p:last-child {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: rgb(13, 0, 0);
+}
+
+.App p:last-child.online {
+  background-color: green;
+}
+
+.App p:last-child.offline {
+  background-color: red;
+}
