@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
+let myObj={};
+
+
   const [ipData, setIpData] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:4900/api/ipstatus')
       .then((res) => {
+        console.log("connected!!!"); // Debug log
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -14,7 +18,14 @@ function App() {
       })
       .then((data) => {
         console.log('Data fetched from server:', data); // Debug log
-        setIpData(data);
+        if (data.status === false){
+          myObj.status = true;
+        }
+        else{
+          myObj.status = false;
+        }
+
+        setIpData(myObj);
       })
       .catch((error) => {
         console.log('Fetching data failed:', error); // Debug log

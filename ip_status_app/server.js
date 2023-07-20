@@ -1,3 +1,5 @@
+let failFlag=true;
+
 const express = require('express');
 const cors = require('cors');
 
@@ -22,23 +24,25 @@ var Ping = require('ping-wrapper');
 Ping.configure();
 
 
-var ping = new Ping('1.2.3.4');
+var ping = new Ping('777.46.0.6');
 
 ping.on('ping', function(data){
 	console.log('Ping %s: time: %d ms', data.host, data.time);
+  failFlag=false;
 });
 
 ping.on('fail', function(data){
 	console.log('Fail', data);
+  failFlag=true;
 });
 
 
 
-app.get('/api/ipstatus', (req, res) => {
+app.get('/api/ipstatus/', (req, res) => {
     // simulate dynamic data
     const data = ping; // Function that dynamically generates new data
   
-    res.json(data);
+    res.json(failFlag);
   });
 
 const PORT = process.env.PORT || 4900;
