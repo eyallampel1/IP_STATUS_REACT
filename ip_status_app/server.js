@@ -15,7 +15,7 @@ Ping.configure();
 
 const hosts = {
   "7.0.0.1": "Host1",
-  "127.0.0.1": "Host2",
+  "129.7.0.9": "Host2",
   "9.0.0.1": "Host3",
   // Add more hosts here
 };

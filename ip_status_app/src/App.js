@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import LinearProgress from "@mui/joy/LinearProgress";
 import "./App.css";
 
 function App() {
   const [ipData, setIpData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = () => {
@@ -15,33 +17,35 @@ function App() {
         })
         .then((data) => {
           setIpData(data);
+          setLoading(false);
         })
         .catch((error) => {
-          console.log("Fetching data failed:", error); // Debug log
+          console.log("Fetching data failed:", error);
         });
     };
 
-    fetchData(); // Fetch data immediately when the component is mounted
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
 
-    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-
-    // Clean up function: Clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
   }, []);
 
   return (
     <div className="App">
-      {ipData.map((item, index) => (
-        <div key={index}>
-          <p>
-            {item.hostname} ({item.ipAddress})
-          </p>
-          <p className={item.ipReplay ? "online" : "offline"}>
-            {item.ipReplay ? "Online" : "Offline"}
-          </p>
-        </div>
-      ))}
-      b
+      {loading ? (
+        <LinearProgress /> // Show LinearProgress when loading
+      ) : (
+        ipData.map((item, index) => (
+          <div key={index}>
+            <p>
+              {item.hostname} ({item.ipAddress})
+            </p>
+            <p className={item.ipReplay ? "online" : "offline"}>
+              {item.ipReplay ? "Online" : "Offline"}
+            </p>
+          </div>
+        ))
+      )}
     </div>
   );
 }
