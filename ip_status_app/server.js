@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const sqlite3 = require("sqlite3").verbose();
 const Ping = require("ping-wrapper");
 
 const app = express();
@@ -13,12 +14,13 @@ app.use((req, res, next) => {
 
 Ping.configure();
 
-const hosts = {
-  "7.0.0.1": "Host1",
-  "129.7.0.9": "Host2",
-  "9.0.0.1": "Host3",
-  // Add more hosts here
-};
+// Create a database connection
+let db = new sqlite3.Database("./IP.db", (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log("Connected to the SQLite database.");
+});
 
 const pingHost = (ip, hostname) => {
   return new Promise((resolve, reject) => {
@@ -34,12 +36,46 @@ const pingHost = (ip, hostname) => {
   });
 };
 
-app.get("/api/ipstatus/", async (req, res) => {
-  let promises = Object.entries(hosts).map(([ip, hostname]) =>
-    pingHost(ip, hostname),
+app.get("/api/ipstatus/", (req, res) => {
+  db.all(`SELECT ip, hostname FROM hosts`, async (err, rows) => {
+    if (err) {
+      throw err;
+    }
+
+    let promises = rows.map(({ ip, hostname }) => pingHost(ip, hostname));
+    let results = await Promise.all(promises);
+    res.json(results);
+  });
+});
+
+app.post("/api/hosts", (req, res) => {
+  const { ip, hostname } = req.body;
+
+  if (!ip || !hostname) {
+    return res.status(400).json({ error: "ip and hostname are required" });
+  }
+
+  db.run(
+    `INSERT INTO hosts(ip, hostname) VALUES(?, ?)`,
+    [ip, hostname],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ id: this.lastID });
+    },
   );
-  let results = await Promise.all(promises);
-  res.json(results);
+});
+
+app.delete("/api/hosts/:ip", (req, res) => {
+  const ip = req.params.ip;
+
+  db.run(`DELETE FROM hosts WHERE ip = ?`, ip, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ deletedRows: this.changes });
+  });
 });
 
 const PORT = process.env.PORT || 4900;
